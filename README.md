@@ -30,7 +30,7 @@ _[Coming Soon - Will be available on Chrome Web Store]_
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/linkedin-finder-chrome-ext.git
+   git clone https://github.com/miguelx97/linkedin-finder-chrome-ext.git
    cd linkedin-finder-chrome-ext
    ```
 
@@ -68,7 +68,7 @@ _[Coming Soon - Will be available on Chrome Web Store]_
 1. **Clone and install**
 
    ```bash
-   git clone https://github.com/yourusername/linkedin-finder-chrome-ext.git
+   git clone https://github.com/miguelx97/linkedin-finder-chrome-ext.git
    cd linkedin-finder-chrome-ext
    pnpm install
    ```
@@ -181,7 +181,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues or have questions:
 
-1. Check the [Issues](https://github.com/yourusername/linkedin-finder-chrome-ext/issues) page
+1. Check the [Issues](https://github.com/miguelx97/linkedin-finder-chrome-ext/issues) page
 2. Create a new issue if your problem isn't already reported
 3. Provide as much detail as possible, including:
    - Chrome version
@@ -189,18 +189,9 @@ If you encounter any issues or have questions:
    - Steps to reproduce
    - Expected vs actual behavior
 
-## 🚀 Roadmap
-
-- [ ] Custom highlight colors
-- [ ] Keyword categories/groups
-- [ ] Export/import keyword lists
-- [ ] Keyboard shortcuts
-- [ ] Statistics and analytics
-- [ ] Support for other social platforms
-
 ## 👥 Authors
 
-- **Your Name** - _Initial work_ - [YourGitHub](https://github.com/yourusername)
+- **Miguel Martin** - _Initial work_ - [YourGitHub](https://github.com/miguelx97)
 
 ## 🙏 Acknowledgments
 
