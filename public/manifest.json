@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Linkedin Finder",
   "version": "1.0.0",
-  "description": "A LinkedIn Finder extension that allows you to find useful words",
+  "description": "Highlights keywords on LinkedIn pages to help you identify relevant profiles and content.",
   "icons": {
     "48": "images/linkedin_finder_icon-48.png",
     "128": "images/linkedin_finder_icon-128.png"
