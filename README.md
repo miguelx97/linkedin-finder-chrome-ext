@@ -1,69 +1,215 @@
-# React + TypeScript + Vite
+# LinkedIn Finder Chrome Extension
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A powerful Chrome extension that highlights keywords on LinkedIn pages to help you quickly identify relevant profiles, job postings, and content that match your search criteria.
 
-Currently, two official plugins are available:
+![LinkedIn Finder Demo](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Chrome Extension](https://img.shields.io/badge/chrome-extension-brightgreen.svg)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## Expanding the ESLint configuration
+- **Smart Keyword Highlighting**: Add custom keywords that will be automatically highlighted on LinkedIn pages
+- **Real-time Updates**: Keywords are highlighted dynamically as you navigate through LinkedIn
+- **Persistent Storage**: Your keywords are saved across browser sessions
+- **Performance Optimized**: Uses efficient DOM observation and debounced highlighting
+- **Clean UI**: Modern, intuitive popup interface for managing keywords
+- **Case Insensitive**: Finds keywords regardless of case
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📸 Screenshots
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+_Add screenshots here showing the extension in action_
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## 🛠️ Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### From Chrome Web Store
+
+_[Coming Soon - Will be available on Chrome Web Store]_
+
+### Manual Installation (Developer Mode)
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/yourusername/linkedin-finder-chrome-ext.git
+   cd linkedin-finder-chrome-ext
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   # or
+   pnpm install
+   ```
+
+3. **Build the extension**
+
+   ```bash
+   npm run build
+   # or
+   pnpm build
+   ```
+
+4. **Load in Chrome**
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable "Developer mode" in the top right
+   - Click "Load unpacked" and select the `dist` folder
+
+## 🔧 Development
+
+### Prerequisites
+
+- Node.js (v16 or higher)
+- npm or pnpm
+- Chrome browser
+
+### Setup
+
+1. **Clone and install**
+
+   ```bash
+   git clone https://github.com/yourusername/linkedin-finder-chrome-ext.git
+   cd linkedin-finder-chrome-ext
+   pnpm install
+   ```
+
+2. **Development build**
+
+   ```bash
+   pnpm dev
+   ```
+
+3. **Build for production**
+   ```bash
+   pnpm build
+   ```
+
+### Project Structure
+
+```
+linkedin-finder-chrome-ext/
+├── src/
+│   ├── components/ui/       # Reusable UI components
+│   │   ├── button.tsx
+│   │   ├── chip.tsx
+│   │   └── input.tsx
+│   ├── pages/
+│   │   └── App.tsx         # Main popup interface
+│   ├── services/
+│   │   └── highlightService.ts  # Core highlighting logic
+│   ├── global/
+│   │   └── constants.ts    # Application constants
+│   ├── content-script.ts   # Content script entry point
+│   └── main.tsx           # React app entry point
+├── public/
+│   ├── manifest.json      # Chrome extension manifest
+│   ├── images/           # Extension icons
+│   └── highlight-styles.css  # Highlighting styles
+└── dist/                 # Built extension files
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 💡 How It Works
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. **Keyword Management**: Use the extension popup to add/remove keywords you want to highlight
+2. **Auto-Highlighting**: When you visit LinkedIn, the extension automatically scans and highlights your keywords
+3. **Dynamic Updates**: As you navigate or as new content loads, highlighting updates in real-time
+4. **Smart Detection**: Uses mutation observers to detect DOM changes and re-highlight new content
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🎯 Usage
+
+1. **Add Keywords**: Click the extension icon and add keywords you want to track
+2. **Browse LinkedIn**: Navigate to any LinkedIn page
+3. **See Highlights**: Your keywords will be highlighted with a yellow background
+4. **Manage Keywords**: Remove keywords by clicking the 'X' on each chip in the popup
+
+### Example Use Cases
+
+- **Recruiters**: Highlight skills like "React", "Python", "Machine Learning"
+- **Job Seekers**: Highlight company names, job titles, or technologies
+- **Sales**: Highlight industry terms, company types, or decision-maker titles
+- **Networking**: Highlight interests, locations, or specific expertise areas
+
+## 🔒 Permissions
+
+The extension requires the following permissions:
+
+- **Storage**: To save your keywords across browser sessions
+- **LinkedIn Access**: To highlight keywords on LinkedIn pages (`https://www.linkedin.com/*`)
+
+## 🏗️ Technical Details
+
+### Built With
+
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **Vite** - Build tool
+- **Chrome Extension API** - Browser integration
+
+### Key Components
+
+- **HighlightService**: Core service that handles keyword highlighting using regex patterns and DOM manipulation
+- **Storage Management**: Uses Chrome's sync storage for cross-device keyword synchronization
+- **Performance Optimization**: Implements debounced highlighting to prevent performance issues
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+### Development Workflow
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests and linting (`npm run lint`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+### Code Style
+
+- Use TypeScript for type safety
+- Follow ESLint configuration
+- Use Tailwind CSS for styling
+- Write descriptive commit messages
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🐛 Issues & Support
+
+If you encounter any issues or have questions:
+
+1. Check the [Issues](https://github.com/yourusername/linkedin-finder-chrome-ext/issues) page
+2. Create a new issue if your problem isn't already reported
+3. Provide as much detail as possible, including:
+   - Chrome version
+   - Extension version
+   - Steps to reproduce
+   - Expected vs actual behavior
+
+## 🚀 Roadmap
+
+- [ ] Custom highlight colors
+- [ ] Keyword categories/groups
+- [ ] Export/import keyword lists
+- [ ] Keyboard shortcuts
+- [ ] Statistics and analytics
+- [ ] Support for other social platforms
+
+## 👥 Authors
+
+- **Your Name** - _Initial work_ - [YourGitHub](https://github.com/yourusername)
+
+## 🙏 Acknowledgments
+
+- Built with modern web technologies
+- Inspired by the need for better LinkedIn navigation
+- Thanks to the Chrome Extensions API documentation
+
+---
+
+⭐ **Star this repository if you find it helpful!**
+
+Made with ❤️ for the LinkedIn community
