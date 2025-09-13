@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import "./App.css";
-import { Button } from "./components/button";
-import { Input } from "./components/input";
-import { Chip } from "./components/chip";
-import { STORAGE_KEYS } from "./global/constants";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Chip } from "../components/ui/chip";
+import { STORAGE_KEYS } from "../global/constants";
 
 function App() {
   const [keywords, setKeywords] = useState<string[]>([]);
@@ -20,11 +19,13 @@ function App() {
   }, [keywords]);
 
   const handleAddKeyword = () => {
+    if (currentKeyword.trim() === "") return;
     setKeywords([...keywords, currentKeyword]);
     setCurrentKeyword("");
   };
 
   const handleRemoveKeyword = (index: number) => {
+    if (index < 0 || index >= keywords.length) return;
     setKeywords([...keywords.slice(0, index), ...keywords.slice(index + 1)]);
   };
 
@@ -43,7 +44,10 @@ function App() {
             }
           }}
         />
-        <Button className="rounded-full w-11 h-11" onClick={handleAddKeyword}>
+        <Button
+          className="rounded-full w-11 h-11 text-2xl"
+          onClick={handleAddKeyword}
+        >
           +
         </Button>
       </div>
