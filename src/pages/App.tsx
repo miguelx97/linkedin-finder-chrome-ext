@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Chip } from "../components/ui/chip";
+import { Plus } from "lucide-react";
 import { STORAGE_KEYS } from "../global/constants";
 
 function App() {
@@ -9,13 +10,13 @@ function App() {
   const [currentKeyword, setCurrentKeyword] = useState<string>("");
 
   useEffect(() => {
-    chrome.storage.sync.get({ [STORAGE_KEYS.KEYWORDS]: [] }, (result) => {
+    chrome.storage?.sync.get({ [STORAGE_KEYS.KEYWORDS]: [] }, (result) => {
       setKeywords(result[STORAGE_KEYS.KEYWORDS] || []);
     });
   }, []);
 
   useEffect(() => {
-    chrome.storage.sync.set({ [STORAGE_KEYS.KEYWORDS]: keywords });
+    chrome.storage?.sync.set({ [STORAGE_KEYS.KEYWORDS]: keywords });
   }, [keywords]);
 
   const handleAddKeyword = () => {
@@ -31,11 +32,11 @@ function App() {
 
   return (
     <div className="flex flex-col items-center justify-center w-80 gap-4 py-4 px-2">
-      <h1 className="text-3xl">Linkedin Finder</h1>
+      <h1 className="text-3xl">LinkedIn Finder</h1>
       <div className="flex gap-2 w-full">
         <Input
           type="text"
-          placeholder="Enter a keyword"
+          placeholder="Enter keyword"
           value={currentKeyword}
           onChange={(e) => setCurrentKeyword(e.target.value)}
           onKeyDown={(e) => {
@@ -45,10 +46,10 @@ function App() {
           }}
         />
         <Button
-          className="rounded-full w-11 h-11 text-2xl"
+          className="rounded-full w-14 text-2xl"
           onClick={handleAddKeyword}
         >
-          +
+          <Plus />
         </Button>
       </div>
       <div className="flex flex-wrap gap-2 w-full">
