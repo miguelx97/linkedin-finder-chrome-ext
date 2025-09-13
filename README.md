@@ -17,13 +17,7 @@ A powerful Chrome extension that highlights keywords on LinkedIn pages to help y
 
 ## 📸 Screenshots
 
-### Adding Keywords
-
-![Add Keywords](https://raw.githubusercontent.com/miguelx97/linkedin-finder-chrome-ext/refs/heads/main/resources/add-keywords-screenshot.jpeg)
-
-### Highlighted Keywords on LinkedIn
-
-![Words Highlighted](https://raw.githubusercontent.com/miguelx97/linkedin-finder-chrome-ext/refs/heads/main/resources/words-highlighted-screenshot.jpeg)
+![Add Keywords](https://raw.githubusercontent.com/miguelx97/linkedin-finder-chrome-ext/refs/heads/main/resources/cover.jpeg)
 
 ## 🛠️ Installation
 
