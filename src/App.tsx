@@ -1,0 +1,64 @@
+import { useEffect, useState } from "react";
+import "./App.css";
+import { Button } from "./components/button";
+import { Input } from "./components/input";
+import { Chip } from "./components/chip";
+import { STORAGE_KEYS } from "./global/constants";
+
+function App() {
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [currentKeyword, setCurrentKeyword] = useState<string>("");
+
+  useEffect(() => {
+    chrome.storage.sync.get({ [STORAGE_KEYS.KEYWORDS]: [] }, (result) => {
+      setKeywords(result[STORAGE_KEYS.KEYWORDS] || []);
+    });
+  }, []);
+
+  useEffect(() => {
+    chrome.storage.sync.set({ [STORAGE_KEYS.KEYWORDS]: keywords });
+  }, [keywords]);
+
+  const handleAddKeyword = () => {
+    setKeywords([...keywords, currentKeyword]);
+    setCurrentKeyword("");
+  };
+
+  const handleRemoveKeyword = (index: number) => {
+    setKeywords([...keywords.slice(0, index), ...keywords.slice(index + 1)]);
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center w-80 gap-4 py-4 px-2">
+      <h1 className="text-3xl">Linkedin Finder</h1>
+      <div className="flex gap-2 w-full">
+        <Input
+          type="text"
+          placeholder="Enter a keyword"
+          value={currentKeyword}
+          onChange={(e) => setCurrentKeyword(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleAddKeyword();
+            }
+          }}
+        />
+        <Button className="rounded-full w-11 h-11" onClick={handleAddKeyword}>
+          +
+        </Button>
+      </div>
+      <div className="flex flex-wrap gap-2 w-full">
+        {keywords.map((keyword, index) => (
+          <Chip
+            key={index}
+            label={keyword}
+            variant="primary"
+            onRemove={() => handleRemoveKeyword(index)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default App;
