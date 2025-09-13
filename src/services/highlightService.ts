@@ -124,7 +124,7 @@ export class HighlightService {
 
         if (!keywordPattern) return;
 
-        const regex = new RegExp(`(${keywordPattern})`, 'gi');
+        const regex = new RegExp(`\\b(${keywordPattern})\\b`, 'gi');
 
         const highlightedContent = content.replace(regex, (match) => {
             hasMatch = true;

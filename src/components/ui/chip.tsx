@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { X } from "lucide-react";
 
 interface ChipProps {
   label: string;
@@ -38,10 +39,10 @@ export const Chip = ({
       {onRemove && (
         <button
           onClick={onRemove}
-          className="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-black hover:bg-opacity-10 transition-colors duration-150 focus:outline-none focus:ring-1 focus:ring-gray-400"
+          className="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-black hover:text-white transition-colors duration-150 focus:outline-none focus:ring-1 focus:ring-gray-400"
           aria-label="Remove"
         >
-          <span className="text-xs leading-none">×</span>
+          <X className="w-3 h-3" />
         </button>
       )}
     </div>
