@@ -56,11 +56,11 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-80 gap-4 py-4 px-8">
+    <div className="flex flex-col items-center justify-center w-80 gap-4 py-4 px-2">
       <h1 className="text-3xl">LinkedIn Finder</h1>
 
-      <section className="w-full">
-        <div className="flex gap-2 w-full">
+      <section className="w-full flex flex-col gap-2">
+        <div className="flex gap-2 w-full justify-center">
           <Input
             type="text"
             placeholder="Palabra para resaltar"
@@ -91,7 +91,7 @@ function App() {
         </div>
       </section>
       <hr className="w-full" />
-      <section className="flex w-full justify-between">
+      <section className="flex w-full justify-center gap-6">
         <span>
           Resaltar contactos
           <br />

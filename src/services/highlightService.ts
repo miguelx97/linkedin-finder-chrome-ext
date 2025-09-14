@@ -1,4 +1,5 @@
 import { STORAGE_KEYS } from '../global/constants';
+import type { KeywordGroup } from '../types/keyword';
 
 /**
  * Service class responsible for highlighting keywords on LinkedIn pages
@@ -23,8 +24,10 @@ export class HighlightService {
     private async initializeKeywords(): Promise<void> {
         try {
             // Get keywords
-            const result = await chrome.storage.sync.get({ [STORAGE_KEYS.KEYWORDS]: [] });
-            this.keywords = result[STORAGE_KEYS.KEYWORDS] || [];
+            const result: { [STORAGE_KEYS.KEYWORDS]: KeywordGroup[] } = await chrome.storage.sync.get({ [STORAGE_KEYS.KEYWORDS]: [] });
+            const keywordGroups: KeywordGroup[] = result[STORAGE_KEYS.KEYWORDS] || [];
+            this.keywords = keywordGroups.flatMap(group => group.keywords);
+
             // Get common contacts count
             const commonCountResult = await chrome.storage.sync.get({ [STORAGE_KEYS.COMMON_COUNT]: 0 });
             this.commonContactsCount = commonCountResult[STORAGE_KEYS.COMMON_COUNT] || 0;
@@ -36,14 +39,28 @@ export class HighlightService {
 
     /**
      * Sets up a listener for Chrome storage changes to automatically update highlights
-     * when keywords are modified from the extension popup
+     * when keywords or common contacts count are modified from the extension popup
      */
     private setupKeywordListener(): void {
         chrome.storage.onChanged.addListener((changes, namespace) => {
-            if (namespace === 'sync' && changes[STORAGE_KEYS.KEYWORDS]) {
-                this.clearHighlights();
-                this.keywords = changes[STORAGE_KEYS.KEYWORDS].newValue || [];
-                this.highlightAllKeywords();
+            if (namespace === 'sync') {
+                let shouldUpdate = false;
+
+                if (changes[STORAGE_KEYS.KEYWORDS]) {
+                    const keywordGroups: KeywordGroup[] = changes[STORAGE_KEYS.KEYWORDS].newValue || [];
+                    this.keywords = keywordGroups.flatMap(group => group.keywords);
+                    shouldUpdate = true;
+                }
+
+                if (changes[STORAGE_KEYS.COMMON_COUNT]) {
+                    this.commonContactsCount = changes[STORAGE_KEYS.COMMON_COUNT].newValue || 0;
+                    shouldUpdate = true;
+                }
+
+                if (shouldUpdate) {
+                    this.clearHighlights();
+                    this.highlightAllKeywords();
+                }
             }
         });
     }
@@ -154,26 +171,29 @@ export class HighlightService {
     private highlightInTextNode(textNode: Text): void {
         if (!textNode.textContent) return;
 
-        const content = textNode.textContent;
+        let content = textNode.textContent;
         let hasMatch = false;
 
-        // Create a case-insensitive regex for all keywords
+        // First, check for "y {número} contactos más" pattern
+        content = this.highlightContactsPattern(content, (found) => { hasMatch = found; });
+
+        // Then, check for regular keywords
         const keywordPattern: string = this.keywords
             .map(keyword => this.escapeRegex(keyword))
             .join('|');
 
-        if (!keywordPattern) return;
+        if (keywordPattern || this.commonContactsCount > 0) {
+            const regex: RegExp = new RegExp(`\\b(${keywordPattern})\\b`, 'gi');
 
-        const regex: RegExp = new RegExp(`\\b(${keywordPattern})\\b`, 'gi');
-
-        const highlightedContent: string = content.replace(regex, (match: string) => {
-            hasMatch = true;
-            return `<span class="${this.highlightClassName}">${match}</span>`;
-        });
+            content = content.replace(regex, (match: string) => {
+                hasMatch = true;
+                return `<span class="${this.highlightClassName}">${match}</span>`;
+            });
+        }
 
         if (hasMatch) {
             const wrapper = document.createElement('div');
-            wrapper.innerHTML = highlightedContent;
+            wrapper.innerHTML = content;
 
             // Replace the text node with highlighted content
             const parent: Node | null = textNode.parentNode;
@@ -184,6 +204,31 @@ export class HighlightService {
                 parent.removeChild(textNode);
             }
         }
+    }
+
+    /**
+     * Highlights "{número} contactos en común" pattern when the number is >= commonContactsCount
+     * @param content - The text content to search in
+     * @param setHasMatch - Callback function to indicate if a match was found
+     * @returns The content with highlighted contacts pattern if applicable
+     */
+    private highlightContactsPattern(content: string, setHasMatch: (found: boolean) => void): string {
+        if (this.commonContactsCount <= 0) return content;
+
+        // Regex to match "{número} contactos en común" or "{número} contactos más"
+        const contactsRegex = /\b(\d+)\s+contactos?\s+(en\s+común|más)/gi;
+
+        return content.replace(contactsRegex, (match: string, numberStr: string) => {
+            const contactNumber = parseInt(numberStr, 10);
+
+            // Only highlight if the number is >= commonContactsCount
+            if (contactNumber >= this.commonContactsCount) {
+                setHasMatch(true);
+                return `<span class="${this.highlightClassName}">${match}</span>`;
+            }
+
+            return match; // Return original text without highlighting
+        });
     }
 
     /**
