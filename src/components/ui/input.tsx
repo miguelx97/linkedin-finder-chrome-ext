@@ -1,4 +1,5 @@
 import React from "react";
+import clsx from "clsx";
 
 export const Input = ({
   type,
@@ -8,9 +9,10 @@ export const Input = ({
   return (
     <input
       type={type}
-      className={`w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary ${
-        className || ""
-      }`}
+      className={clsx(
+        "border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary",
+        className
+      )}
       {...props}
     />
   );

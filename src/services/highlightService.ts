@@ -1,7 +1,12 @@
 import { STORAGE_KEYS } from '../global/constants';
 
+/**
+ * Service class responsible for highlighting keywords on LinkedIn pages
+ * Manages keyword storage, DOM observation, and text highlighting functionality
+ */
 export class HighlightService {
     private keywords: string[] = [];
+    private commonContactsCount: number = 0;
     private observer: MutationObserver | null = null;
     private highlightClassName = 'linkedin-finder-highlight';
 
@@ -11,16 +16,28 @@ export class HighlightService {
         this.setupDOMObserver();
     }
 
+    /**
+     * Loads keywords and common contacts count from Chrome storage and triggers initial highlighting
+     * @returns Promise that resolves when initialization is complete
+     */
     private async initializeKeywords(): Promise<void> {
         try {
+            // Get keywords
             const result = await chrome.storage.sync.get({ [STORAGE_KEYS.KEYWORDS]: [] });
             this.keywords = result[STORAGE_KEYS.KEYWORDS] || [];
+            // Get common contacts count
+            const commonCountResult = await chrome.storage.sync.get({ [STORAGE_KEYS.COMMON_COUNT]: 0 });
+            this.commonContactsCount = commonCountResult[STORAGE_KEYS.COMMON_COUNT] || 0;
             this.highlightAllKeywords();
         } catch (error) {
             console.error('Failed to load keywords:', error);
         }
     }
 
+    /**
+     * Sets up a listener for Chrome storage changes to automatically update highlights
+     * when keywords are modified from the extension popup
+     */
     private setupKeywordListener(): void {
         chrome.storage.onChanged.addListener((changes, namespace) => {
             if (namespace === 'sync' && changes[STORAGE_KEYS.KEYWORDS]) {
@@ -31,6 +48,10 @@ export class HighlightService {
         });
     }
 
+    /**
+     * Sets up a MutationObserver to watch for DOM changes and re-highlight keywords
+     * when new content is added to the page (e.g., dynamic loading on LinkedIn)
+     */
     private setupDOMObserver(): void {
         this.observer = new MutationObserver((mutations) => {
             let shouldUpdate = false;
@@ -58,6 +79,10 @@ export class HighlightService {
     }
 
     private debounceTimer: number | null = null;
+    /**
+     * Debounces the highlight operation to prevent excessive highlighting calls
+     * when rapid DOM changes occur, improving performance
+     */
     private debounceHighlight(): void {
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer);
@@ -68,6 +93,10 @@ export class HighlightService {
         }, 500);
     }
 
+    /**
+     * Main highlighting function that finds all text nodes in the document
+     * and applies keyword highlighting to each one
+     */
     private highlightAllKeywords(): void {
         if (this.keywords.length === 0) return;
 
@@ -78,6 +107,12 @@ export class HighlightService {
         });
     }
 
+    /**
+     * Recursively finds all text nodes in the given element while filtering out
+     * unwanted nodes (script, style, already highlighted content)
+     * @param element - The root element to search within
+     * @returns Array of text nodes that are safe to highlight
+     */
     private getTextNodes(element: Element): Text[] {
         const textNodes: Text[] = [];
         const walker = document.createTreeWalker(
@@ -111,6 +146,11 @@ export class HighlightService {
         return textNodes;
     }
 
+    /**
+     * Highlights keywords within a specific text node by replacing matched text
+     * with HTML spans containing the highlight class
+     * @param textNode - The text node to search for keywords and highlight
+     */
     private highlightInTextNode(textNode: Text): void {
         if (!textNode.textContent) return;
 
@@ -118,15 +158,15 @@ export class HighlightService {
         let hasMatch = false;
 
         // Create a case-insensitive regex for all keywords
-        const keywordPattern = this.keywords
+        const keywordPattern: string = this.keywords
             .map(keyword => this.escapeRegex(keyword))
             .join('|');
 
         if (!keywordPattern) return;
 
-        const regex = new RegExp(`\\b(${keywordPattern})\\b`, 'gi');
+        const regex: RegExp = new RegExp(`\\b(${keywordPattern})\\b`, 'gi');
 
-        const highlightedContent = content.replace(regex, (match) => {
+        const highlightedContent: string = content.replace(regex, (match: string) => {
             hasMatch = true;
             return `<span class="${this.highlightClassName}">${match}</span>`;
         });
@@ -136,7 +176,7 @@ export class HighlightService {
             wrapper.innerHTML = highlightedContent;
 
             // Replace the text node with highlighted content
-            const parent = textNode.parentNode;
+            const parent: Node | null = textNode.parentNode;
             if (parent) {
                 while (wrapper.firstChild) {
                     parent.insertBefore(wrapper.firstChild, textNode);
@@ -146,10 +186,19 @@ export class HighlightService {
         }
     }
 
+    /**
+     * Escapes special regex characters in a string to ensure literal matching
+     * @param string - The string to escape
+     * @returns The escaped string safe for use in regex patterns
+     */
     private escapeRegex(string: string): string {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
+    /**
+     * Removes all existing highlights from the page by replacing highlighted spans
+     * with their original text content
+     */
     private clearHighlights(): void {
         const highlightedElements = document.querySelectorAll(`.${this.highlightClassName}`);
         highlightedElements.forEach((element) => {
@@ -161,6 +210,10 @@ export class HighlightService {
         });
     }
 
+    /**
+     * Cleans up the service by removing highlights, disconnecting observers,
+     * and clearing timers. Should be called when the service is no longer needed.
+     */
     public destroy(): void {
         this.clearHighlights();
         if (this.observer) {

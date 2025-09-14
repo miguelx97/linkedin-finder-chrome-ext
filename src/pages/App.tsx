@@ -3,65 +3,107 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Chip } from "../components/ui/chip";
 import { Plus } from "lucide-react";
-import { STORAGE_KEYS } from "../global/constants";
+import { DEFAULT, STORAGE_KEYS } from "../global/constants";
+import { useKeywordsStore } from "../store/keywords.store";
 
 function App() {
-  const [keywords, setKeywords] = useState<string[]>([]);
+  const {
+    groups,
+    loadFromStorage,
+    addGroup,
+    addKeywordToGroup,
+    removeKeywordFromGroup,
+  } = useKeywordsStore();
   const [currentKeyword, setCurrentKeyword] = useState<string>("");
+  const [commonCount, setCommonCount] = useState<number>(0);
+
+  // Get the default group and its keywords
+  const defaultGroup = groups.find(
+    (group) => group.name === DEFAULT.GROUP_NAME
+  );
+  const keywords = defaultGroup?.keywords || [];
 
   useEffect(() => {
-    chrome.storage?.sync.get({ [STORAGE_KEYS.KEYWORDS]: [] }, (result) => {
-      setKeywords(result[STORAGE_KEYS.KEYWORDS] || []);
+    // Load groups from storage
+    loadFromStorage().then(() => {
+      // Create default group if no groups exist
+      if (groups.length === 0) {
+        addGroup(DEFAULT.GROUP_NAME, DEFAULT.GROUP_COLOR);
+      }
     });
-  }, []);
+
+    // Load commonCount separately (since it's not part of the groups store)
+    chrome.storage?.sync.get({ [STORAGE_KEYS.COMMON_COUNT]: 0 }, (result) => {
+      setCommonCount(result[STORAGE_KEYS.COMMON_COUNT] || 0);
+    });
+  }, [loadFromStorage]);
 
   useEffect(() => {
-    chrome.storage?.sync.set({ [STORAGE_KEYS.KEYWORDS]: keywords });
-  }, [keywords]);
+    // Save commonCount to storage
+    chrome.storage?.sync.set({ [STORAGE_KEYS.COMMON_COUNT]: commonCount });
+  }, [commonCount]);
 
   const handleAddKeyword = () => {
     if (currentKeyword.trim() === "") return;
-    setKeywords([...keywords, currentKeyword]);
+
+    // Add keyword to the default group
+    addKeywordToGroup(DEFAULT.GROUP_NAME, currentKeyword);
     setCurrentKeyword("");
   };
 
-  const handleRemoveKeyword = (index: number) => {
-    if (index < 0 || index >= keywords.length) return;
-    setKeywords([...keywords.slice(0, index), ...keywords.slice(index + 1)]);
+  const handleRemoveKeyword = (keyword: string) => {
+    removeKeywordFromGroup(DEFAULT.GROUP_NAME, keyword);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-80 gap-4 py-4 px-2">
+    <div className="flex flex-col items-center justify-center w-80 gap-4 py-4 px-8">
       <h1 className="text-3xl">LinkedIn Finder</h1>
-      <div className="flex gap-2 w-full">
-        <Input
-          type="text"
-          placeholder="Enter keyword"
-          value={currentKeyword}
-          onChange={(e) => setCurrentKeyword(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleAddKeyword();
-            }
-          }}
-        />
-        <Button
-          className="rounded-full w-14 text-2xl"
-          onClick={handleAddKeyword}
-        >
-          <Plus />
-        </Button>
-      </div>
-      <div className="flex flex-wrap gap-2 w-full">
-        {keywords.map((keyword, index) => (
-          <Chip
-            key={index}
-            label={keyword}
-            variant="primary"
-            onRemove={() => handleRemoveKeyword(index)}
+
+      <section className="w-full">
+        <div className="flex gap-2 w-full">
+          <Input
+            type="text"
+            placeholder="Palabra para resaltar"
+            value={currentKeyword}
+            onChange={(e) => setCurrentKeyword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleAddKeyword();
+              }
+            }}
           />
-        ))}
-      </div>
+          <Button
+            className="rounded-full w-14 text-2xl"
+            onClick={handleAddKeyword}
+          >
+            <Plus />
+          </Button>
+        </div>
+        <div className="flex flex-wrap gap-2 w-full">
+          {keywords.map((keyword, index) => (
+            <Chip
+              key={index}
+              label={keyword}
+              variant="primary"
+              onRemove={() => handleRemoveKeyword(keyword)}
+            />
+          ))}
+        </div>
+      </section>
+      <hr className="w-full" />
+      <section className="flex w-full justify-between">
+        <span>
+          Resaltar contactos
+          <br />
+          en común mayor a
+        </span>
+        <Input
+          type="number"
+          className="w-20"
+          value={commonCount}
+          onChange={(e) => setCommonCount(Number(e.target.value))}
+        />
+      </section>
     </div>
   );
 }
