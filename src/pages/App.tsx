@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { DEFAULT, STORAGE_KEYS } from "../global/constants";
 import { useKeywordsStore } from "../store/keywords.store";
 import useDebounce from "../hooks/useDebounce";
+import type { CommonCount } from "../types/commonCount.type";
 
 function App() {
   const {
@@ -37,16 +38,23 @@ function App() {
     });
 
     // Load commonCount separately (since it's not part of the groups store)
-    chrome.storage?.sync.get({ [STORAGE_KEYS.COMMON_COUNT]: 0 }, (result) => {
-      setCommonCount(result[STORAGE_KEYS.COMMON_COUNT] || 0);
-    });
+    chrome.storage?.sync.get(
+      { [STORAGE_KEYS.COMMON_COUNT]: { count: 0, color: "" } },
+      (result) => {
+        setCommonCount(result[STORAGE_KEYS.COMMON_COUNT]?.count || 0);
+      }
+    );
   }, [loadFromStorage]);
 
   useEffect(() => {
     // Save commonCount to storage
     if (debouncedCommonCount === undefined) return;
+    const commonCount: CommonCount = {
+      count: debouncedCommonCount,
+      color: "",
+    };
     chrome.storage?.sync.set({
-      [STORAGE_KEYS.COMMON_COUNT]: debouncedCommonCount,
+      [STORAGE_KEYS.COMMON_COUNT]: commonCount,
     });
   }, [debouncedCommonCount]);
 

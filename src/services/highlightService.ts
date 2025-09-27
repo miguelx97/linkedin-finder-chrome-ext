@@ -1,5 +1,5 @@
 import { STORAGE_KEYS } from '../global/constants';
-import type { KeywordGroup } from '../types/keyword';
+import type { KeywordGroup } from '../types/keyword.type';
 
 /**
  * Service class responsible for highlighting keywords on LinkedIn pages
@@ -30,7 +30,7 @@ export class HighlightService {
 
             // Get common contacts count
             const commonCountResult = await chrome.storage.sync.get({ [STORAGE_KEYS.COMMON_COUNT]: 0 });
-            this.commonContactsCount = commonCountResult[STORAGE_KEYS.COMMON_COUNT] || 0;
+            this.commonContactsCount = commonCountResult[STORAGE_KEYS.COMMON_COUNT].count || 0;
 
             this.highlightData();
         } catch (error) {

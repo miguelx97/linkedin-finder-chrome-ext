@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { KeywordGroup } from '../types/keyword';
+import type { KeywordGroup } from '../types/keyword.type';
 import { STORAGE_KEYS } from '../global/constants';
 import { storageService } from '../services/storage';
 
