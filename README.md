@@ -37,16 +37,12 @@ _[Coming Soon - Will be available on Chrome Web Store]_
 2. **Install dependencies**
 
    ```bash
-   npm install
-   # or
    pnpm install
    ```
 
 3. **Build the extension**
 
    ```bash
-   npm run build
-   # or
    pnpm build
    ```
 
@@ -60,7 +56,7 @@ _[Coming Soon - Will be available on Chrome Web Store]_
 ### Prerequisites
 
 - Node.js (v16 or higher)
-- npm or pnpm
+- pnpm
 - Chrome browser
 
 ### Setup

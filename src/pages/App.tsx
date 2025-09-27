@@ -5,6 +5,7 @@ import { Chip } from "../components/ui/chip";
 import { Plus } from "lucide-react";
 import { DEFAULT, STORAGE_KEYS } from "../global/constants";
 import { useKeywordsStore } from "../store/keywords.store";
+import useDebounce from "../hooks/useDebounce";
 
 function App() {
   const {
@@ -15,7 +16,10 @@ function App() {
     removeKeywordFromGroup,
   } = useKeywordsStore();
   const [currentKeyword, setCurrentKeyword] = useState<string>("");
-  const [commonCount, setCommonCount] = useState<number>(0);
+  const [commonCount, setCommonCount] = useState<number | undefined>(undefined);
+  const debouncedCommonCount: number | undefined = useDebounce<
+    number | undefined
+  >(commonCount, 600);
 
   // Get the default group and its keywords
   const defaultGroup = groups.find(
@@ -40,8 +44,11 @@ function App() {
 
   useEffect(() => {
     // Save commonCount to storage
-    chrome.storage?.sync.set({ [STORAGE_KEYS.COMMON_COUNT]: commonCount });
-  }, [commonCount]);
+    if (debouncedCommonCount === undefined) return;
+    chrome.storage?.sync.set({
+      [STORAGE_KEYS.COMMON_COUNT]: debouncedCommonCount,
+    });
+  }, [debouncedCommonCount]);
 
   const handleAddKeyword = () => {
     if (currentKeyword.trim() === "") return;
@@ -100,7 +107,7 @@ function App() {
         <Input
           type="number"
           className="w-20"
-          value={commonCount}
+          value={commonCount?.toString() || 0}
           onChange={(e) => setCommonCount(Number(e.target.value))}
         />
       </section>

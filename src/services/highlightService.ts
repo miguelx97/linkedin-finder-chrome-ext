@@ -12,7 +12,7 @@ export class HighlightService {
     private highlightClassName = 'linkedin-finder-highlight';
 
     constructor() {
-        this.initializeKeywords();
+        this.initializeData();
         this.setupKeywordListener();
         this.setupDOMObserver();
     }
@@ -21,7 +21,7 @@ export class HighlightService {
      * Loads keywords and common contacts count from Chrome storage and triggers initial highlighting
      * @returns Promise that resolves when initialization is complete
      */
-    private async initializeKeywords(): Promise<void> {
+    private async initializeData(): Promise<void> {
         try {
             // Get keywords
             const result: { [STORAGE_KEYS.KEYWORDS]: KeywordGroup[] } = await chrome.storage.sync.get({ [STORAGE_KEYS.KEYWORDS]: [] });
@@ -31,7 +31,8 @@ export class HighlightService {
             // Get common contacts count
             const commonCountResult = await chrome.storage.sync.get({ [STORAGE_KEYS.COMMON_COUNT]: 0 });
             this.commonContactsCount = commonCountResult[STORAGE_KEYS.COMMON_COUNT] || 0;
-            this.highlightAllKeywords();
+
+            this.highlightData();
         } catch (error) {
             console.error('Failed to load keywords:', error);
         }
@@ -59,7 +60,7 @@ export class HighlightService {
 
                 if (shouldUpdate) {
                     this.clearHighlights();
-                    this.highlightAllKeywords();
+                    this.highlightData();
                 }
             }
         });
@@ -106,7 +107,7 @@ export class HighlightService {
         }
 
         this.debounceTimer = window.setTimeout(() => {
-            this.highlightAllKeywords();
+            this.highlightData();
         }, 500);
     }
 
@@ -114,8 +115,8 @@ export class HighlightService {
      * Main highlighting function that finds all text nodes in the document
      * and applies keyword highlighting to each one
      */
-    private highlightAllKeywords(): void {
-        if (this.keywords.length === 0) return;
+    private highlightData(): void {
+        if (this.keywords.length === 0 && this.commonContactsCount === 0) return;
 
         const textNodes = this.getTextNodes(document.body);
 
@@ -176,20 +177,7 @@ export class HighlightService {
 
         // First, check for "y {número} contactos más" pattern
         content = this.highlightContactsPattern(content, (found) => { hasMatch = found; });
-
-        // Then, check for regular keywords
-        const keywordPattern: string = this.keywords
-            .map(keyword => this.escapeRegex(keyword))
-            .join('|');
-
-        if (keywordPattern || this.commonContactsCount > 0) {
-            const regex: RegExp = new RegExp(`\\b(${keywordPattern})\\b`, 'gi');
-
-            content = content.replace(regex, (match: string) => {
-                hasMatch = true;
-                return `<span class="${this.highlightClassName}">${match}</span>`;
-            });
-        }
+        content = this.highlightKeyword(content, (found) => { hasMatch = found; });
 
         if (hasMatch) {
             const wrapper = document.createElement('div');
@@ -204,6 +192,26 @@ export class HighlightService {
                 parent.removeChild(textNode);
             }
         }
+    }
+
+    private highlightKeyword(content: string, setHasMatch: (found: boolean) => void): string {
+        if (this.keywords.length === 0) return content;
+
+        // Then, check for regular keywords
+        const keywordPattern: string = this.keywords
+            .map(keyword => this.escapeRegex(keyword))
+            .join('|');
+
+        if (keywordPattern || this.commonContactsCount > 0) {
+            const regex: RegExp = new RegExp(`\\b(${keywordPattern})\\b`, 'gi');
+
+            return content.replace(regex, (match: string) => {
+                setHasMatch(true);
+                return `<span class="${this.highlightClassName} orange">${match}</span>`;
+            });
+        }
+
+        return content;
     }
 
     /**
@@ -224,7 +232,7 @@ export class HighlightService {
             // Only highlight if the number is >= commonContactsCount
             if (contactNumber >= this.commonContactsCount) {
                 setHasMatch(true);
-                return `<span class="${this.highlightClassName}">${match}</span>`;
+                return `<span class="${this.highlightClassName} yellow">${match}</span>`;
             }
 
             return match; // Return original text without highlighting

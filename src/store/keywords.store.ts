@@ -28,7 +28,7 @@ export const useKeywordsStore = create<KeywordsStore>((set, get) => ({
 
         // Check if group already exists
         if (groups.some(group => group.name.toLowerCase() === name.toLowerCase())) {
-            console.warn(`Group "${name}" already exists`);
+            console.log(`Group "${name}" already exists`);
             return;
         }
 
@@ -60,7 +60,7 @@ export const useKeywordsStore = create<KeywordsStore>((set, get) => ({
             if (group.name === groupName) {
                 // Check if keyword already exists
                 if (group.keywords.some(k => k.toLowerCase() === keyword.toLowerCase())) {
-                    console.warn(`Keyword "${keyword}" already exists in group "${groupName}"`);
+                    console.log(`Keyword "${keyword}" already exists in group "${groupName}"`);
                     return group;
                 }
                 return { ...group, keywords: [...group.keywords, keyword.trim()] };
